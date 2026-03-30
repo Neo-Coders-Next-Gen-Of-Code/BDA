@@ -16,7 +16,10 @@ class DepenseController extends Controller
      */
     private function setAppUser(): void
     {
-        $username = Auth::check() ? Auth::user()->name : 'inconnu';
+        $user = Auth::guard('admin')->check()
+            ? Auth::guard('admin')->user()
+            : Auth::guard('web')->user();
+        $username = $user ? $user->name : 'inconnu';
         DB::statement("SELECT set_config('app.current_user', ?, false)", [$username]);
     }
 
@@ -70,6 +73,7 @@ class DepenseController extends Controller
     {
         $this->setAppUser();
         $depense->delete();
+
         return redirect()->route('depenses.index')
                          ->with('success', 'Dépense supprimée. Budget recalculé automatiquement.');
     }

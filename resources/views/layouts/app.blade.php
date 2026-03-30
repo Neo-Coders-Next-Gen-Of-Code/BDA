@@ -28,22 +28,45 @@
     <a class="navbar-brand" href="{{ route('depenses.index') }}">
         <i class="bi bi-bank2"></i> Gestion des Dépenses
     </a>
-    <div class="d-flex align-items-center gap-3">
+    <div class="d-flex align-items-center gap-2">
+
+        {{-- Session Admin --}}
+        @if(Auth::guard('admin')->check())
         <span class="text-secondary small user-info">
             <i class="bi bi-person-circle me-1"></i>
-            {{ Auth::user()->name }}
-            @if(Auth::user()->role === 'admin')
-                <span class="badge bg-danger ms-1">Admin</span>
-            @else
-                <span class="badge bg-primary ms-1">Utilisateur</span>
-            @endif
+            {{ Auth::guard('admin')->user()->name }}
+            <span class="badge bg-danger ms-1">Admin</span>
         </span>
         <form method="POST" action="{{ route('logout') }}" class="m-0">
             @csrf
+            <input type="hidden" name="guard" value="admin">
+            <button type="submit" class="btn btn-outline-danger btn-sm">
+                <i class="bi bi-box-arrow-right"></i> Déconnexion
+            </button>
+        </form>
+        @endif
+
+        {{-- Séparateur si les deux sessions sont actives --}}
+        @if(Auth::guard('admin')->check() && Auth::guard('web')->check())
+        <div class="vr bg-secondary mx-1" style="height:24px"></div>
+        @endif
+
+        {{-- Session Utilisateur --}}
+        @if(Auth::guard('web')->check())
+        <span class="text-secondary small user-info">
+            <i class="bi bi-person-circle me-1"></i>
+            {{ Auth::guard('web')->user()->name }}
+            <span class="badge bg-primary ms-1">Utilisateur</span>
+        </span>
+        <form method="POST" action="{{ route('logout') }}" class="m-0">
+            @csrf
+            <input type="hidden" name="guard" value="web">
             <button type="submit" class="btn btn-outline-secondary btn-sm">
                 <i class="bi bi-box-arrow-right"></i> Déconnexion
             </button>
         </form>
+        @endif
+
     </div>
 </nav>
 
@@ -53,7 +76,7 @@
         <ul class="nav flex-column gap-1">
 
             {{-- Établissements : admin uniquement --}}
-            @if(Auth::user()->role === 'admin')
+            @if(Auth::guard('admin')->check())
             <li class="nav-item">
                 <a href="{{ route('etablissements.index') }}"
                    class="nav-link {{ request()->routeIs('etablissements.*') ? 'active' : '' }}">
@@ -70,7 +93,7 @@
             </li>
 
             {{-- Audit : admin uniquement --}}
-            @if(Auth::user()->role === 'admin')
+            @if(Auth::guard('admin')->check())
             <li class="nav-item">
                 <a href="{{ route('audit.index') }}"
                    class="nav-link {{ request()->routeIs('audit.*') ? 'active' : '' }}">
@@ -106,7 +129,6 @@
         @yield('content')
     </main>
 </div>
-
 
 </body>
 </html>

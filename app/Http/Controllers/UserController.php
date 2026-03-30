@@ -72,7 +72,7 @@ class UserController extends Controller
 
     public function destroy(User $user)
     {
-        if ($user->id === auth()->id()) {
+        if ($user->id === \Illuminate\Support\Facades\Auth::guard('admin')->id()) {
             return back()->with('error', 'Vous ne pouvez pas supprimer votre propre compte.');
         }
 

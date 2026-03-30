@@ -4,14 +4,15 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Symfony\Component\HttpFoundation\Response;
 
-class AdminMiddleware
+class AuthAnyMiddleware
 {
     public function handle(Request $request, Closure $next): Response
     {
-        if (!\Illuminate\Support\Facades\Auth::guard('admin')->check()) {
-            abort(403, 'Accès réservé aux administrateurs.');
+        if (!Auth::guard('web')->check() && !Auth::guard('admin')->check()) {
+            return redirect()->route('login');
         }
 
         return $next($request);
